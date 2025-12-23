@@ -2,6 +2,8 @@
 // IMPORTS / SETUP
 // ---------------------------
 const express = require("express");
+const sqlite3 = require("sqlite3").verbose(); // SQLite library
+const path = require("path");
 const app = express();
 const PORT = 3000;
 
@@ -10,6 +12,30 @@ app.use(express.json());
 
 // Serve static files from the 'public' folder (your HTML form)
 app.use(express.static('public'));
+
+// ---------------------------
+// DATABASE SETUP
+// ---------------------------
+
+// Create/connect to a SQLite database file
+const db = new sqlite3.Database(path.join(__dirname, 'database.db'), (err) => {
+    if (err) {
+        console.error("Error opening database:", err.message);
+    } else {
+        console.log("Connected to SQLite database.");
+    }
+});
+
+//Create purchases table if it doesn't exist
+db.run(`
+    CREATE TABLE IF NOT EXISTS purchases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ticker TEXT NOT NULL,
+        shares INTEGER NOT NULL,
+        price REAL NOT NULL,
+        date TEXT NOT NULL
+    )    
+`);
 
 // ---------------------------
 // TEMPORARY IN-MEMORY STORAGE
@@ -36,37 +62,46 @@ app.get("/api/health", (req, res) => {
 });
 
 // POST /api/purchases
-// Accepts JSON data for a stock purchase
-// Example request body:
-// {
-//   "ticker": "AAPL",
-//   "shares": 5,
-//   "price": 150,
-//   "date": "2025-12-23"
-// }
 app.post("/api/purchases", (req, res) => {
   const { ticker, shares, price, date } = req.body;
 
-  // Minimal validation
   if (!ticker || !shares || !price || !date) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  // Add to temporary storage
-  const purchase = { id: purchases.length + 1, ticker, shares, price, date };
-  purchases.push(purchase);
+  const stmt = db.prepare(`
+    INSERT INTO purchases (ticker, shares, price, date)
+    VALUES (?, ?, ?, ?)
+  `);
 
-  // Return confirmation
-  res.status(201).json({
-    message: "Purchase recorded",
-    purchase: purchase
+  stmt.run(ticker, shares, price, date, function(err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    // Return the inserted purchase with its auto-generated ID
+    res.status(201).json({
+      message: "Purchase recorded",
+      purchase: {
+        id: this.lastID,
+        ticker,
+        shares,
+        price,
+        date
+      }
+    });
   });
+
+  stmt.finalize();
 });
 
 // GET /api/purchases
-// Returns all stored purchases
 app.get("/api/purchases", (req, res) => {
-  res.json(purchases);
+  db.all("SELECT * FROM purchases", [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
+  });
 });
 
 // ---------------------------
