@@ -21,6 +21,13 @@ app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
+
+// Simple API health check endpoint
+app.get("/api/health", (req, res) => {
+  // Respond with JSON instead of plain text
+  res.json({ status: "ok", timestamp: Date.now() });
+});
+
 // ---------------------------
 // START SERVER
 // ---------------------------
@@ -31,13 +38,4 @@ app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
 
-// ---------------------------
-// NOTES
-// ---------------------------
-// Mental model:
-// 1. Program starts
-// 2. Routes are registered (no requests yet)
-// 3. Server listens on PORT
-// 4. Waits for incoming requests
-// 5. Executes matching route handler when request arrives
-// 6. Sends response and waits for next request
+
