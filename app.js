@@ -1,35 +1,33 @@
 // ---------------------------
 // IMPORTS / SETUP
 // ---------------------------
-
-// Load the Express library
 const express = require("express");
-
-// Create an Express application instance
-// This represents your web server
 const app = express();
-
-// Define the port to listen on
-// 3000 is conventional for development
-const PORT = 3000
+const PORT = 3000;
 
 // Middleware to parse JSON bodies from incoming requests
-// (Useful when you later accept POST requests)
 app.use(express.json());
+
+// Serve static files from the 'public' folder (your HTML form)
+app.use(express.static('public'));
+
+// ---------------------------
+// TEMPORARY IN-MEMORY STORAGE
+// ---------------------------
+// This array stores purchases temporarily
+// Later we will replace this with SQLite for persistence
+let purchases = [];
 
 // ---------------------------
 // ROUTES
 // ---------------------------
 
-// Homepage route
-// Responds to GET requests at "/"
+// Homepage route (optional since public/index.html exists)
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
 // API health check route
-// Responds to GET requests at "/api/health"
-// Returns JSON so clients (like your frontend) can check server status
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
@@ -37,12 +35,43 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// POST /api/purchases
+// Accepts JSON data for a stock purchase
+// Example request body:
+// {
+//   "ticker": "AAPL",
+//   "shares": 5,
+//   "price": 150,
+//   "date": "2025-12-23"
+// }
+app.post("/api/purchases", (req, res) => {
+  const { ticker, shares, price, date } = req.body;
+
+  // Minimal validation
+  if (!ticker || !shares || !price || !date) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  // Add to temporary storage
+  const purchase = { id: purchases.length + 1, ticker, shares, price, date };
+  purchases.push(purchase);
+
+  // Return confirmation
+  res.status(201).json({
+    message: "Purchase recorded",
+    purchase: purchase
+  });
+});
+
+// GET /api/purchases
+// Returns all stored purchases
+app.get("/api/purchases", (req, res) => {
+  res.json(purchases);
+});
+
 // ---------------------------
 // START SERVER
 // ---------------------------
-
-// Listen on the defined port
-// Callback runs once server successfully starts
 app.listen(PORT, () => {
   console.log(`Server listening on http://localhost:${PORT}`);
 });
@@ -50,10 +79,6 @@ app.listen(PORT, () => {
 // ---------------------------
 // NOTES
 // ---------------------------
-// Mental model for beginners:
-// 1. Program starts
-// 2. Routes registered (GET /, GET /api/health)
-// 3. Server listens on PORT
-// 4. Waits for incoming requests
-// 5. Executes matching route handler
-// 6. Sends response and waits for next request
+// - purchases[] must be defined before any routes that use it
+// - public/index.html allows browser-based POST testing
+// - Next step: integrate SQLite for persistent storage
