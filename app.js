@@ -38,13 +38,6 @@ db.run(`
 `);
 
 // ---------------------------
-// TEMPORARY IN-MEMORY STORAGE
-// ---------------------------
-// This array stores purchases temporarily
-// Later we will replace this with SQLite for persistence
-let purchases = [];
-
-// ---------------------------
 // ROUTES
 // ---------------------------
 
@@ -60,6 +53,10 @@ app.get("/api/health", (req, res) => {
     timestamp: Date.now()
   });
 });
+
+// ---------------------------
+// CRUD ENDPOINTS
+// ---------------------------
 
 // POST /api/purchases
 app.post("/api/purchases", (req, res) => {
@@ -97,12 +94,50 @@ app.post("/api/purchases", (req, res) => {
 // GET /api/purchases
 app.get("/api/purchases", (req, res) => {
   db.all("SELECT * FROM purchases", [], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
+    if (err) return res.status(500).json({ error: err.message }); 
     res.json(rows);
   });
 });
+
+// READ: Get one purchase by ID
+app.get("/api/purchases/:id", (req, res) => {
+  const id = req.params.id;
+  db.get("SELECT * FROM purchases WHERE id = ?", [id], (err, row) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (!row) return res.status(404).json({ error: "Purchase not found" });
+    res.json(row);
+  });
+});
+
+// UPDATE: Edit a purchase by ID
+app.put("/api/purchases/:id", (req, res) => {
+  const id = req.params.id;
+  const { ticker, shares, price, date } = req.body;
+  if (!ticker || !shares || !price || !date) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const stmt = db.prepare("UPDATE purchases SET ticker = ?, shares = ?, price = ?, date = ? WHERE id = ?");
+  stmt.run(ticker, shares, price, date, id, function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: "Purchase not found" });
+    res.json({ message: "Purchase updated", purchase: { id: Number(id), ticker, shares, price, date } });
+  });
+  stmt.finalize();
+});
+
+// DELETE: Remove a purchase by ID
+app.delete("/api/purchases/:id", (req, res) => {
+  const id = req.params.id;
+  const stmt = db.prepare("DELETE FROM purchases WHERE id = ?");
+  stmt.run(id, function (err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) return res.status(404).json({ error: "Purchase not found" });
+    res.json({ message: "Purchase deleted", id: Number(id) });
+  });
+  stmt.finalize();
+});
+
 
 // ---------------------------
 // START SERVER
@@ -114,6 +149,5 @@ app.listen(PORT, () => {
 // ---------------------------
 // NOTES
 // ---------------------------
-// - purchases[] must be defined before any routes that use it
+
 // - public/index.html allows browser-based POST testing
-// - Next step: integrate SQLite for persistent storage
