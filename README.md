@@ -1,95 +1,105 @@
 # Stock Tracker App
 
 ## Overview
-This project is a personal stock tracking and financial analysis web application.  
-The goal is to allow a user to manually record stock purchases, dividends, and cash deposits, then view basic portfolio analytics such as total value and gains.
+This is a personal stock tracking and financial analysis web application.  
+It allows a user to manually record stock purchases, dividends, and cash deposits, then view portfolio analytics such as total value, average price, and unrealized gains/losses.
 
 This project is primarily a learning exercise focused on full-stack web development fundamentals.
 
 ---
 
-## Goals (MVP)
-The minimum viable product (MVP) will allow a user to:
+## Features
 
-- Record stock purchases (ticker, shares, price, date)
-- Record dividends and cash deposits
-- Store all data persistently in a database
-- View a basic dashboard showing:
+- Record stock purchases (supports fractional shares)
+- Store all data persistently in a SQLite database
+- View portfolio summary with:
   - Total invested amount
   - Current holdings
-  - Simple gain/loss calculations
-
-No user accounts or real-time stock prices are included in the MVP.
+  - Average price per ticker
+  - Current price per ticker (live via API or fallback)
+  - Unrealized profit/loss
+- Delete or edit purchases
 
 ---
 
 ## Tech Stack
-Planned technologies for this project:
 
-- **Frontend**: HTML, CSS, Vanilla JavaScript
-- **Backend**: Node.js with Express.js
-- **Database**: SQLite
-- **Version Control**: Git & GitHub
-
----
-
-## Architecture Overview
-The application follows a simple three-layer architecture:
-
-### Frontend
-- Provides forms for user input
-- Sends data to the backend using HTTP requests
-- Displays results returned from the server
-
-### Backend
-- Handles routing and request validation
-- Performs financial calculations
-- Reads from and writes to the database
-
-### Database
-- Stores all persistent financial data
-- Uses simple relational tables for structured data
+- **Frontend**: HTML, CSS, Vanilla JavaScript  
+- **Backend**: Node.js with Express.js  
+- **Database**: SQLite  
+- **Version Control**: Git & GitHub  
 
 ---
 
-## Planned Database Schema
-Initial tables may include:
+## Setup (for someone cloning the repo)
 
-- **purchases**
-  - id
-  - ticker
-  - shares
-  - price
-  - date
+1. **Clone the repository**:
+   ```bash
+   git clone <repo_url>
+   cd <project_folder>
+  ```
 
-- **dividends**
-  - id
-  - purchase_id
-  - amount
-  - date
+2. **Install dependencies**:
 
-- **deposits**
-  - id
-  - amount
-  - date
+   ```bash
+   npm install
+  ```
 
----
+3. **Create a `.env` file** in the root folder to store your API key (optional, for live prices):
 
-## Planned Folder Structure
-The following structure is planned as the project develops:
+   ```
+   ALPHA_VANTAGE_API_KEY=YOUR_API_KEY_HERE
+   ```
 
----
+   * If you don’t provide an API key, the app will still run using the last purchase price as a fallback for current prices.
+   * **Important:** Do **not** commit `.env` to GitHub. It is included in `.gitignore`.
 
-## Future Features (Post-MVP)
-Possible enhancements after the MVP:
+4. **Start the server**:
 
-- Real-time stock prices via an external API
-- Charts and visualizations
-- User authentication
-- Exporting data (CSV)
-- Improved financial metrics
+   ```bash
+   node app.js
+   ```
+
+5. **Open the frontend**:
+   Navigate to [http://localhost:3000](http://localhost:3000) in your browser to view and interact with the app.
 
 ---
 
-## Status
-🚧 Project is in early planning and setup stage.
+## Environment Variables
+
+* `ALPHA_VANTAGE_API_KEY` – Optional. Used to fetch real-time stock prices from Alpha Vantage.
+* If not provided, the portfolio summary will use the last recorded purchase price as the current price.
+
+---
+
+## Folder Structure (Planned)
+
+```
+project-root/
+├─ public/         # HTML, CSS, JS frontend
+├─ database.db     # SQLite database file
+├─ app.js          # Backend server
+├─ package.json
+├─ .gitignore
+├─ .env            # Not committed; stores API key
+└─ README.md
+```
+
+---
+
+## Future Enhancements
+
+* Real-time stock prices with caching
+* Charts and visualizations
+* User authentication
+* Exporting data (CSV)
+* Additional financial metrics
+
+---
+
+## Notes
+
+* The app supports fractional shares.
+* CRUD operations for purchases are fully functional.
+* Portfolio summary includes **unrealized profit/loss**.
+* The app is portable; anyone can clone, set up `.env` if desired, and run the server locally.

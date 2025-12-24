@@ -1,69 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Stock Tracker API Tester</title>
+  <meta charset="UTF-8" />
+  <title>Stock Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 700px;
+    }
+
+    h1, h2 {
+      margin-bottom: 10px;
+    }
+
+    /* --- Form styling --- */
+    form {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input, button {
+      margin-top: 4px;
+      padding: 6px;
+      box-sizing: border-box;
+    }
+
+    form button {
+      width: 100%; /* full width only for form submit button */
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    /* --- Purchases list styling --- */
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin-bottom: 30px;
+    }
+
+    #purchases-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      gap: 10px;
+    }
+
+    .purchase-text {
+      flex: 1; /* text takes remaining space */
+    }
+
+    #purchases-list .delete-btn {
+      width: auto;      /* let button shrink to content */
+      flex: 0 0 auto;   /* don’t grow */
+      padding: 4px 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    @media(max-width: 500px){
+      #purchases-list .delete-btn {
+        padding: 3px 6px;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* --- Portfolio Table --- */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    #portfolio-summary p {
+      margin-bottom: 6px;
+    }
+
+    /* Optional: color for positive/negative P/L */
+    .pl-positive { color: green; }
+    .pl-negative { color: red; }
+  </style>
 </head>
 <body>
-  <h1>POST /api/purchases Tester</h1>
+  <h1>Stock Purchases</h1>
 
-  <form id="purchaseForm">
-    <label>
-      Ticker:
-      <input type="text" name="ticker" required>
-    </label>
-    <br>
-    <label>
-      Shares:
-      <input type="number" name="shares" required>
-    </label>
-    <br>
-    <label>
-      Price:
-      <input type="number" step="0.01" name="price" required>
-    </label>
-    <br>
-    <label>
-      Date:
-      <input type="date" name="date" required>
-    </label>
-    <br><br>
-    <button type="submit">Submit Purchase</button>
+  <form id="purchase-form">
+    <h2>Add Purchase</h2>
+    <label for="ticker">Ticker</label>
+    <input type="text" id="ticker" placeholder="AAPL" required />
+
+    <label for="shares">Shares</label>
+    <input type="number" id="shares" placeholder="0.5" step="any" min="0.000001" required />
+
+    <label for="price">Price per Share</label>
+    <input type="number" id="price" placeholder="150.25" step="0.01" min="0.01" required />
+
+    <label for="date">Purchase Date</label>
+    <input type="date" id="date" required />
+
+    <button type="submit">Add Purchase</button>
   </form>
 
-  <h2>Response:</h2>
-  <pre id="response"></pre>
+  <h2>Current Purchases</h2>
+  <ul id="purchases-list"></ul>
 
-  <script>
-    const form = document.getElementById('purchaseForm');
-    const responseEl = document.getElementById('response');
+  <h2>Portfolio Summary</h2>
+  <div id="portfolio-summary">
+    <p><strong>Total Invested:</strong> $<span id="total-invested">0.00</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticker</th>
+          <th>Shares</th>
+          <th>Avg Price</th>
+          <th>Total Cost</th>
+          <th>Current Price</th>
+          <th>Unrealized P/L</th>
+        </tr>
+      </thead>
+      <tbody id="holdings-table"></tbody>
+    </table>
+  </div>
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault(); // Prevent default page reload
-
-      const formData = new FormData(form);
-      const data = {
-        ticker: formData.get('ticker'),
-        shares: Number(formData.get('shares')),
-        price: Number(formData.get('price')),
-        date: formData.get('date')
-      };
-
-      try {
-        const res = await fetch('http://localhost:3000/api/purchases', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        const json = await res.json();
-        responseEl.textContent = JSON.stringify(json, null, 2);
-
-      } catch (err) {
-        responseEl.textContent = 'Error: ' + err.message;
-      }
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
-

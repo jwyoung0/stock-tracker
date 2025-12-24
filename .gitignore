@@ -1,3 +1,16 @@
+#node_modules/ - prevents committing all installed packages
 node_modules/
+
+# Environment variables - keeps your API key secret
 .env
+
+# SQLite database file - avoids committing local database changes
 database.sqlite
+
+# Logs - avoids committing logs
+*.log
+npm-debug.log*
+
+# OS files - prevents OS-specific clutter
+.DS_Store
+Thumbs.db
