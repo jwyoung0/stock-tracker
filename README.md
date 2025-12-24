@@ -1,4 +1,6 @@
+Perfect! Here’s the updated README with **Tech Stack** and **Screenshot Example** sections included:
 
+````markdown
 # 📈 Stock Portfolio Tracker
 
 A simple web app to track your stock purchases and portfolio performance in real time.  
@@ -15,6 +17,13 @@ View your holdings, add or delete purchases, and see current prices along with u
   - Current price
   - Unrealized P/L
 - Live price updates from Finnhub
+
+## Tech Stack
+
+- **Frontend:** HTML, CSS, JavaScript
+- **Backend:** Node.js, Express
+- **API:** Finnhub (for stock prices)
+- **Data storage:** Local JSON or backend API
 
 ## Setup
 
@@ -44,6 +53,11 @@ View your holdings, add or delete purchases, and see current prices along with u
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Screenshot Example
+
+![Portfolio Tracker Screenshot](./screenshot.png)
+*Example of portfolio summary with current prices and unrealized gains/losses.*
+
 ## Notes
 
 * You **must have a Finnhub API key** to fetch current stock prices. Get one for free at [Finnhub.io](https://finnhub.io/).
@@ -52,3 +66,5 @@ View your holdings, add or delete purchases, and see current prices along with u
 ## License
 
 MIT License
+
+```
