@@ -1,5 +1,3 @@
-Perfect! Here’s the updated README with **Tech Stack** and **Screenshot Example** sections included:
-
 ````markdown
 # 📈 Stock Portfolio Tracker
 
@@ -55,8 +53,7 @@ View your holdings, add or delete purchases, and see current prices along with u
 
 ## Screenshot Example
 
-![Portfolio Tracker Screenshot](./screenshot.png)
-*Example of portfolio summary with current prices and unrealized gains/losses.*
+
 
 ## Notes
 
